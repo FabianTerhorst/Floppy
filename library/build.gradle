@@ -1,0 +1,9 @@
+apply plugin: 'java'
+
+dependencies {
+    compile 'com.squareup.okio:okio:1.10.0'
+    compile 'de.ruedigermoeller:fst:2.47'
+}
+
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"
