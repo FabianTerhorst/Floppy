@@ -9,17 +9,17 @@ import io.fabianterhorst.floppy.Floppy;
 
 public class MainActivity extends AppCompatActivity {
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-		Floppy.init(getFilesDir().toString());
+        Floppy.init(getFilesDir().toString());
 
-		Disk disk = Floppy.disk();
+        Disk disk = Floppy.disk();
 
-		disk.write("bla", "bla2");
+        disk.write("bla", "bla2");
 
-		Log.d("value", disk.<String>read("bla"));
-	}
+        Log.d("value", disk.<String>read("bla"));
+    }
 }
