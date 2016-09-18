@@ -30,43 +30,60 @@ public class Disk {
     }
 
     public void write(String key, Object object) {
+        write(key, object, true);
+    }
+
+    public void write(String key, Object object, boolean fast) {
         final File originalFile = getOriginalFile(key);
-        final File backupFile = makeBackupFile(originalFile);
-        // Rename the current file so it may be used as a backup during the next read
-        if (originalFile.exists()) {
-            //Rename original to backup
-            if (!backupFile.exists()) {
-                if (!originalFile.renameTo(backupFile)) {
-                    throw new RuntimeException("Couldn't rename file " + originalFile
-                            + " to backup file " + backupFile);
+        File backupFile = null;
+        if(!fast) {
+            backupFile = makeBackupFile(originalFile);
+            // Rename the current file so it may be used as a backup during the next read
+            if (originalFile.exists()) {
+                //Rename original to backup
+                if (!backupFile.exists()) {
+                    if (!originalFile.renameTo(backupFile)) {
+                        throw new RuntimeException("Couldn't rename file " + originalFile
+                                + " to backup file " + backupFile);
+                    }
+                } else {
+                    //Backup exist -> original file is broken and must be deleted
+                    //noinspection ResultOfMethodCallIgnored
+                    originalFile.delete();
                 }
-            } else {
-                //Backup exist -> original file is broken and must be deleted
-                //noinspection ResultOfMethodCallIgnored
-                originalFile.delete();
             }
         }
         try {
+            long ts = System.currentTimeMillis();
             BufferedSink bufferedSink = Okio.buffer(Okio.sink(originalFile));
             bufferedSink.write(mConfig.asByteArray(object));
             bufferedSink.flush();
             bufferedSink.close(); //also close file stream
+            System.out.println("ts" + String.valueOf(System.currentTimeMillis() - ts));
             // Writing was successful, delete the backup file if there is one.
             //noinspection ResultOfMethodCallIgnored
-            backupFile.delete();
+            if (backupFile != null) {
+                backupFile.delete();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public <T> T read(String key) {
+    public <T> T read(String key){
+        return read(key, true);
+    }
+
+    public <T> T read(String key, boolean fast) {
         final File originalFile = getOriginalFile(key);
-        final File backupFile = makeBackupFile(originalFile);
-        if (backupFile.exists()) {
-            //noinspection ResultOfMethodCallIgnored
-            originalFile.delete();
-            //noinspection ResultOfMethodCallIgnored
-            backupFile.renameTo(originalFile);
+        if (!fast) {
+            final File backupFile = makeBackupFile(originalFile);
+            if (backupFile.exists()) {
+                //noinspection ResultOfMethodCallIgnored
+                originalFile.delete();
+                //noinspection ResultOfMethodCallIgnored
+                backupFile.renameTo(originalFile);
+            }
         }
 
         if (!exist(key)) {
@@ -77,6 +94,12 @@ public class Disk {
             BufferedSource bufferedSource = Okio.buffer(Okio.source(originalFile));
             return (T) mConfig.asObject(bufferedSource.readByteArray());
         } catch (IOException e) {
+            if(!fast) {
+                if (originalFile.exists() && !originalFile.delete()) {
+                    throw new RuntimeException("Couldn't clean up broken/unserializable file "
+                            + originalFile, e);
+                }
+            }
             throw new RuntimeException(e);
         }
     }
