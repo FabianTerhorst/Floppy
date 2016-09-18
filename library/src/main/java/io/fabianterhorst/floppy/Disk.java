@@ -54,12 +54,10 @@ public class Disk {
             }
         }
         try {
-            long ts = System.currentTimeMillis();
             BufferedSink bufferedSink = Okio.buffer(Okio.sink(originalFile));
             bufferedSink.write(mConfig.asByteArray(object));
             bufferedSink.flush();
             bufferedSink.close(); //also close file stream
-            System.out.println("ts" + String.valueOf(System.currentTimeMillis() - ts));
             // Writing was successful, delete the backup file if there is one.
             //noinspection ResultOfMethodCallIgnored
             if (backupFile != null) {
