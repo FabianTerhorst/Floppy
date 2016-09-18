@@ -77,9 +77,8 @@ public class Disk {
             BufferedSource bufferedSource = Okio.buffer(Okio.source(originalFile));
             return (T) mConfig.asObject(bufferedSource.readByteArray());
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        throw new RuntimeException("");
     }
 
     public synchronized boolean exist(String key) {
