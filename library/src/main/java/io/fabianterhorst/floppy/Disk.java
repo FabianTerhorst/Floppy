@@ -2,11 +2,12 @@ package io.fabianterhorst.floppy;
 
 import org.nustaq.serialization.FSTConfiguration;
 
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
+
+import okio.BufferedSink;
+import okio.BufferedSource;
+import okio.Okio;
 
 /**
  * Created by fabianterhorst on 18.09.16.
@@ -46,11 +47,10 @@ public class Disk {
             }
         }
         try {
-            FileOutputStream outputStream = new FileOutputStream(originalFile);
-            outputStream.write(mConfig.asByteArray(object));
-            outputStream.flush();
-            sync(outputStream);
-            outputStream.close(); //also close file stream
+            BufferedSink bufferedSink = Okio.buffer(Okio.sink(originalFile));
+            bufferedSink.write(mConfig.asByteArray(object));
+            bufferedSink.flush();
+            bufferedSink.close(); //also close file stream
             // Writing was successful, delete the backup file if there is one.
             //noinspection ResultOfMethodCallIgnored
             backupFile.delete();
@@ -74,10 +74,8 @@ public class Disk {
         }
 
         try {
-            byte[] objectData = new byte[(int) originalFile.length()];
-            DataInputStream dataIs = new DataInputStream(new FileInputStream(originalFile));
-            dataIs.readFully(objectData);
-            return (T) mConfig.asObject(objectData);
+            BufferedSource bufferedSource = Okio.buffer(Okio.source(originalFile));
+            return (T) mConfig.asObject(bufferedSource.readByteArray());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -148,17 +146,5 @@ public class Disk {
 
     private File makeBackupFile(File originalFile) {
         return new File(originalFile.getPath() + ".bak");
-    }
-
-    private static boolean sync(FileOutputStream stream) {
-        //noinspection EmptyCatchBlock
-        try {
-            if (stream != null) {
-                stream.getFD().sync();
-            }
-            return true;
-        } catch (IOException e) {
-        }
-        return false;
     }
 }
