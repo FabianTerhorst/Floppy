@@ -3,8 +3,10 @@ Fast key value storage for java
 
 ```java
 Floppy.init(getFilesDir().toString());
-
+//Without cache
 Disk disk = Floppy.disk();
+//With cache
+Disk disk = Floppy.memoryDisk();
 disk.write("key", object);
 disk.read("key");
 disk.setOnWriteListener("testKey", new OnWriteListener<String>() {
