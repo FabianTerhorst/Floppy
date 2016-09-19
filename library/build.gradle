@@ -1,4 +1,8 @@
 apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'com.jfrog.bintray'
+
+archivesBaseName = 'Floppy'
 
 dependencies {
     compile 'com.squareup.okio:okio:1.10.0'
@@ -7,3 +11,84 @@ dependencies {
 
 sourceCompatibility = "1.7"
 targetCompatibility = "1.7"
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allJava
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    javadoc.failOnError(false);
+    javadoc.source = sourceSets.main.allJava
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+
+
+def siteUrl = 'https://github.com/FabianTerhorst/Floppy'
+def gitUrl = 'https://github.com/FabianTerhorst/Floppy.git'
+
+version = "0.0.1"
+group = "io.fabianterhorst"
+
+install {
+    repositories.mavenInstaller {
+        // This generates POM.xml with proper parameters
+        pom {
+            //noinspection GroovyAssignabilityCheck
+            project {
+                packaging 'aar'
+
+                // Add your description here
+                name 'Floppy key value store'
+                url siteUrl
+
+                // Set your license
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'fabianterhorst'
+                        name 'Fabian Terhorst'
+                        email 'fabian.terhorst@gmail.com'
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+                }
+            }
+        }
+    }
+}
+
+Properties properties = new Properties()
+try {
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+} catch (Exception ignore) {
+}
+
+bintray {
+    user = properties.getProperty('user')
+    key =  properties.getProperty('apikey')
+    configurations = ['archives']
+    pkg {
+        repo = 'maven'
+        name = 'Floppy'
+        userOrg = user
+        licenses = ['Apache-2.0']
+        vcsUrl = 'https://github.com/FabianTerhorst/Floppy.git'
+        publish = true
+    }
+}
