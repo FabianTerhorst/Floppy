@@ -4,6 +4,8 @@ import org.nustaq.serialization.FSTConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import okio.BufferedSink;
 import okio.BufferedSource;
@@ -17,13 +19,15 @@ public class Disk {
 
     private static FSTConfiguration mConfig = FSTConfiguration.createDefaultConfiguration();
 
+    private final Map<String, OnWriteListener> mCallbacks = new HashMap<>();
+
     private String mName;
 
     private String mPath;
 
     private String mFilesDir;
 
-    public Disk(String name, String path) {
+    Disk(String name, String path) {
         this.mName = name;
         this.mPath = path;
         createDiskDir();
@@ -36,7 +40,7 @@ public class Disk {
     public void write(String key, Object object, boolean fast) {
         final File originalFile = getOriginalFile(key);
         File backupFile = null;
-        if(!fast) {
+        if (!fast) {
             backupFile = makeBackupFile(originalFile);
             // Rename the current file so it may be used as a backup during the next read
             if (originalFile.exists()) {
@@ -59,19 +63,21 @@ public class Disk {
             bufferedSink.flush();
             bufferedSink.close(); //also close file stream
             // Writing was successful, delete the backup file if there is one.
-            //noinspection ResultOfMethodCallIgnored
             if (backupFile != null) {
+                //noinspection ResultOfMethodCallIgnored
                 backupFile.delete();
             }
+            callCallbacks(key, object);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
-    public <T> T read(String key){
+    public <T> T read(String key) {
         return read(key, true);
     }
 
+    @SuppressWarnings("unchecked")
     public <T> T read(String key, boolean fast) {
         final File originalFile = getOriginalFile(key);
         if (!fast) {
@@ -92,13 +98,31 @@ public class Disk {
             BufferedSource bufferedSource = Okio.buffer(Okio.source(originalFile));
             return (T) mConfig.asObject(bufferedSource.readByteArray());
         } catch (IOException e) {
-            if(!fast) {
+            if (!fast) {
                 if (originalFile.exists() && !originalFile.delete()) {
                     throw new RuntimeException("Couldn't clean up broken/unserializable file "
                             + originalFile, e);
                 }
             }
             throw new RuntimeException(e);
+        }
+    }
+
+    public void setOnWriteListener(String key, OnWriteListener onWriteListener) {
+        mCallbacks.put(key, onWriteListener);
+    }
+
+    public void removeListener(String key) {
+        mCallbacks.remove(key);
+    }
+
+    @SuppressWarnings("unchecked")
+    private synchronized <T> void callCallbacks(String key, T object) {
+        if (mCallbacks.size() > 0) {
+            OnWriteListener<T> listener = (OnWriteListener<T>) mCallbacks.get(key);
+            if (listener != null) {
+                listener.onWrite(object);
+            }
         }
     }
 
