@@ -24,6 +24,12 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
+task bundle(type: Jar) {
+    baseName = archivesBaseName + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
 artifacts {
     archives sourcesJar
     archives javadocJar
@@ -34,7 +40,7 @@ artifacts {
 def siteUrl = 'https://github.com/FabianTerhorst/Floppy'
 def gitUrl = 'https://github.com/FabianTerhorst/Floppy.git'
 
-version = "0.0.1"
+version = "0.0.2"
 group = "io.fabianterhorst"
 
 install {
