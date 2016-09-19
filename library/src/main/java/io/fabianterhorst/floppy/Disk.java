@@ -91,7 +91,7 @@ public class Disk {
             }
         }
 
-        if (!exist(key)) {
+        if (!originalFile.exists()) {
             return null;
         }
 
@@ -125,11 +125,6 @@ public class Disk {
                 listener.onWrite(object);
             }
         }
-    }
-
-    public synchronized boolean exist(String key) {
-        final File originalFile = getOriginalFile(key);
-        return originalFile.exists();
     }
 
     public void delete(String key) {
