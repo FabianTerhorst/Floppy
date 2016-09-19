@@ -6,7 +6,7 @@ import java.util.HashMap;
  * Created by fabianterhorst on 19.09.16.
  */
 
-public class MemoryDisk extends Disk {
+class MemoryDisk extends Disk {
 
     private final HashMap<String, Object> mCache = new HashMap<>();
 
