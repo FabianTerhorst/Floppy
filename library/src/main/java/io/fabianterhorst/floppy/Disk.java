@@ -21,16 +21,17 @@ public class Disk {
 
     private final Map<String, OnWriteListener> mCallbacks = new HashMap<>();
 
-    private String mName;
+    private final String mName;
 
-    private String mPath;
+    private final String mPath;
 
-    private String mFilesDir;
+    private final String mFilesDir;
 
     Disk(String name, String path) {
         this.mName = name;
         this.mPath = path;
-        createDiskDir();
+        this.mFilesDir = createDiskDir();
+        mConfig.setStructMode(true);
     }
 
     public void write(String key, Object object) {
@@ -160,14 +161,15 @@ public class Disk {
         return path + File.separator + dbName;
     }
 
-    private void createDiskDir() {
-        mFilesDir = getDbPath(mPath, mName);
-        if (!new File(mFilesDir).exists()) {
-            boolean isReady = new File(mFilesDir).mkdirs();
+    private String createDiskDir() {
+        String filesDir = getDbPath(mPath, mName);
+        if (!new File(filesDir).exists()) {
+            boolean isReady = new File(filesDir).mkdirs();
             if (!isReady) {
-                throw new RuntimeException("Couldn't create Floppy dir: " + mFilesDir);
+                throw new RuntimeException("Couldn't create Floppy dir: " + filesDir);
             }
         }
+        return filesDir;
     }
 
     private static boolean deleteDirectory(String dirPath) {
