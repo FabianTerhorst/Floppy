@@ -17,7 +17,7 @@ import okio.Okio;
 
 public class Disk {
 
-    private static FSTConfiguration mConfig = FSTConfiguration.createDefaultConfiguration();
+    private final FSTConfiguration mConfig;
 
     private final Map<String, OnWriteListener> mCallbacks = new HashMap<>();
 
@@ -27,11 +27,11 @@ public class Disk {
 
     private final String mFilesDir;
 
-    Disk(String name, String path) {
+    Disk(String name, String path, FSTConfiguration config) {
         this.mName = name;
         this.mPath = path;
+        this.mConfig = config;
         this.mFilesDir = createDiskDir();
-        mConfig.setStructMode(true);
     }
 
     public void write(String key, Object object) {

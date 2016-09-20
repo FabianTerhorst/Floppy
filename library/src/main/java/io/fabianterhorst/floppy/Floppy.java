@@ -1,5 +1,7 @@
 package io.fabianterhorst.floppy;
 
+import org.nustaq.serialization.FSTConfiguration;
+
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Floppy {
@@ -12,12 +14,26 @@ public class Floppy {
 
     private static final ConcurrentHashMap<String, Disk> mDiskMap = new ConcurrentHashMap<>();
 
+    private static FSTConfiguration mConfig = FSTConfiguration.createDefaultConfiguration();
+
     public Floppy() {
 
     }
 
     public static void init(String path) {
         mPath = path;
+        mConfig.setStructMode(true);
+        mConfig.getCLInfoRegistry().setIgnoreAnnotations(true);
+        mConfig.setPreferSpeed(true);
+    }
+
+    public static void init(String path, Class... classes) {
+        init(path);
+        registerClasses(classes);
+    }
+
+    public static void registerClasses(Class... classes) {
+        mConfig.registerClass(classes);
     }
 
     private static Disk disk(String name, String type) {
@@ -50,9 +66,9 @@ public class Floppy {
             Disk disk = mDiskMap.get(name);
             if (disk == null) {
                 if (type == null) {
-                    disk = new Disk(name, mPath);
+                    disk = new Disk(name, mPath, mConfig);
                 } else {
-                    disk = new MemoryDisk(name, mPath);
+                    disk = new MemoryDisk(name, mPath, mConfig);
                 }
                 mDiskMap.put(name, disk);
             }
