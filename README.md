@@ -10,8 +10,14 @@ Floppy.init(getFilesDir().toString());
 Disk disk = Floppy.disk();
 //With cache
 Disk disk = Floppy.memoryDisk();
+//Without cache, with custom name
+Disk disk = Floppy.disk("custom disk");
+//With cache, with custom name
+Disk disk = Floppy.memoryDisk("custom memory disk");
 disk.write("key", object);
 disk.read("key");
+disk.delete("key");
+disk.deleteAll();
 disk.setOnWriteListener("testKey", new OnWriteListener<String>() {
   @Override
   public void onWrite(String value) {
