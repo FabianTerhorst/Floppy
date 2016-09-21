@@ -21,6 +21,8 @@ public class Disk {
 
     private final Map<String, OnWriteListener> mCallbacks = new HashMap<>();
 
+    private final Map<String, File> mFiles = new HashMap<>();
+
     private final String mName;
 
     private final String mPath;
@@ -159,8 +161,13 @@ public class Disk {
     }
 
     private File getOriginalFile(String key) {
-        final String tablePath = mFilesDir + File.separator + key + ".pt";
-        return new File(tablePath);
+        File file = mFiles.get(key);
+        if (file == null) {
+            final String tablePath = mFilesDir + File.separator + key + ".pt";
+            file = new File(tablePath);
+            mFiles.put(key, file);
+        }
+        return file;
     }
 
     private String getDbPath(String path, String dbName) {
