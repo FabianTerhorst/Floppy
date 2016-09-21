@@ -59,6 +59,11 @@ public class Disk {
             }
         }
         try {
+            /*FileOutputStream stream = new FileOutputStream(originalFile);
+            FSTObjectOutput output = mConfig.getObjectOutput(stream);
+            output.writeObject(object);
+            output.flush();
+            stream.close();*/
             BufferedSink bufferedSink = Okio.buffer(Okio.sink(originalFile));
             bufferedSink.write(mConfig.asByteArray(object));
             bufferedSink.flush();
@@ -96,8 +101,14 @@ public class Disk {
         }
 
         try {
+            /*FileInputStream stream = new FileInputStream(originalFile);
+            FSTObjectInput input = mConfig.getObjectInput(stream);
+            stream.close();
+            return (T) input.readObject();*/
             BufferedSource bufferedSource = Okio.buffer(Okio.source(originalFile));
-            return (T) mConfig.asObject(bufferedSource.readByteArray());
+            byte[] bytes = bufferedSource.readByteArray();
+            bufferedSource.close();
+            return (T) mConfig.asObject(bytes);
         } catch (IOException e) {
             if (!fast) {
                 if (originalFile.exists() && !originalFile.delete()) {
