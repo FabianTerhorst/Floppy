@@ -22,7 +22,7 @@ disk.write("testKey", "test");
 ```
 gradle
 ```groovy
-compile 'io.fabianterhorst:Floppy:0.0.8'
+compile 'io.fabianterhorst:Floppy:0.0.9'
 ```
 
 maven
@@ -30,7 +30,7 @@ maven
 <dependency>
   <groupId>io.fabianterhorst</groupId>
   <artifactId>Floppy</artifactId>
-  <version>0.0.8</version>
+  <version>0.0.9</version>
   <type>pom</type>
 </dependency>
 ```
