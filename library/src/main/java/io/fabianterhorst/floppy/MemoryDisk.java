@@ -12,7 +12,7 @@ class MemoryDisk extends Disk {
 
     private final HashMap<String, Object> mCache = new HashMap<>();
 
-    public MemoryDisk(String name, String path, FSTConfiguration config) {
+    MemoryDisk(String name, String path, FSTConfiguration config) {
         super(name, path, config);
     }
 
