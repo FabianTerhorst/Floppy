@@ -30,9 +30,9 @@ disk.write("testKey", "test");
 The array support is internally a memory disk
 ```java
 //Without custom name
-Disk disk = Floppy.arrayDisk();
+ArrayDisk disk = Floppy.arrayDisk();
 //With custom name
-Disk disk = Floppy.arrayDisk("custom array disk");
+ArrayDisk disk = Floppy.arrayDisk("custom array disk");
 disk.addOnChangeListener("items", new OnChangeListener<Item>() {
   @Override
   public void onChange(Item item) {
