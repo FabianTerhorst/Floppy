@@ -35,6 +35,17 @@ public class ArrayDisk extends MemoryDisk {
         callCallbacks(key, object);
     }
 
+    public <T> void changeItem(String key, OnFindListener findListener, OnReadListener<T> readListener) {
+        ArrayList<T> items = read(key);
+        ItemResult<T> itemResult = getItem(key, findListener);
+        if (itemResult != null) {
+            T newItem = readListener.onRead(itemResult.getItem());
+            items.set(itemResult.getIndex(), newItem);
+            write(key, items);
+            callCallbacks(key, newItem);
+        }
+    }
+
     public <T> void addItem(String key, T object) {
         ArrayList<T> items = read(key);
         items.add(object);
@@ -49,6 +60,19 @@ public class ArrayDisk extends MemoryDisk {
         ArrayList<T> items = read(key);
         items.remove(index);
         write(key, items);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> ItemResult<T> getItem(String key, OnFindListener listener) {
+        ArrayList<T> items = read(key);
+        T item;
+        for (int i = 0, size = items.size(); i < size; i++) {
+            item = items.get(i);
+            if (listener.isObject(item)) {
+                return new ItemResult<>(item, i);
+            }
+        }
+        return null;
     }
 
     @SuppressWarnings("unchecked")
