@@ -5,5 +5,5 @@ package io.fabianterhorst.floppy;
  */
 
 public interface OnEqualListener<T> {
-    boolean isEqual(T oldObject, T newObject);
+    boolean isEqual(T currentObject, T newObject);
 }
