@@ -28,6 +28,7 @@ disk.write("testKey", "test");
 ```
 ##Array support
 The array support is internally a memory disk
+```java
 //Without custom name
 Disk disk = Floppy.arrayDisk();
 //With custom name
@@ -63,6 +64,7 @@ disk.changeItem("items", new OnFindListener<Item>() {
       return item;
     }
 });
+```
 
 gradle
 ```groovy
