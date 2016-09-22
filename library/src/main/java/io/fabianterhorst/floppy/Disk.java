@@ -122,7 +122,7 @@ public class Disk {
         }
     }
 
-    public void setOnWriteListener(String key, OnWriteListener onWriteListener) {
+    public void addOnWriteListener(String key, OnWriteListener onWriteListener) {
         mCallbacks.put(key, onWriteListener);
     }
 
