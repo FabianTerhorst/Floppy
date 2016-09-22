@@ -10,6 +10,8 @@ public class Floppy {
 
     private static final String DB_TYPE_MEMORY = "memory";
 
+    private static final String DB_TYPE_ARRAY = "array";
+
     private static String mPath;
 
     private static final ConcurrentHashMap<String, Disk> mDiskMap = new ConcurrentHashMap<>();
@@ -36,7 +38,7 @@ public class Floppy {
         mConfig.registerClass(classes);
     }
 
-    private static Disk disk(String name, String type) {
+    private static <T> T disk(String name, String type) {
         if (name.equals(DEFAULT_DB_NAME)) throw new RuntimeException(DEFAULT_DB_NAME +
                 " name is reserved for default library name");
         return getDisk(name, type);
@@ -50,6 +52,10 @@ public class Floppy {
         return disk(name, DB_TYPE_MEMORY);
     }
 
+    public static ArrayDisk arrayDisk(String name) {
+        return disk(name, DB_TYPE_ARRAY);
+    }
+
     public static Disk disk() {
         return getDisk(DEFAULT_DB_NAME, null);
     }
@@ -58,7 +64,12 @@ public class Floppy {
         return getDisk(DEFAULT_DB_NAME, DB_TYPE_MEMORY);
     }
 
-    private static Disk getDisk(String name, String type) {
+    public static ArrayDisk arrayDisk() {
+        return getDisk(DEFAULT_DB_NAME, DB_TYPE_ARRAY);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T getDisk(String name, String type) {
         if (mPath == null) {
             throw new RuntimeException("Floppy.init is not called");
         }
@@ -67,12 +78,14 @@ public class Floppy {
             if (disk == null) {
                 if (type == null) {
                     disk = new Disk(name, mPath, mConfig);
-                } else {
+                } else if (type.equals(DB_TYPE_MEMORY)){
                     disk = new MemoryDisk(name, mPath, mConfig);
+                } else {
+                    disk = new ArrayDisk(name, mPath, mConfig);
                 }
                 mDiskMap.put(name, disk);
             }
-            return disk;
+            return (T) disk;
         }
     }
 }
