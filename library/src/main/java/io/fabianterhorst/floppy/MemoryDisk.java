@@ -18,10 +18,10 @@ class MemoryDisk extends Disk {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T read(String key, boolean fast) {
+    public <T> T read(String key, T defaultObject) {
         T object = (T) mCache.get(key);
         if (object == null) {
-            object = super.read(key, fast);
+            object = super.read(key, defaultObject);
             mCache.put(key, object);
         }
         return object;
@@ -29,7 +29,7 @@ class MemoryDisk extends Disk {
 
     @Override
     public <T> T read(String key) {
-        return read(key, true);
+        return read(key, null);
     }
 
     @Override
