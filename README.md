@@ -35,7 +35,7 @@ ArrayDisk disk = Floppy.arrayDisk();
 ArrayDisk disk = Floppy.arrayDisk("custom array disk");
 disk.addOnChangeListener("items", new OnChangeListener<Item>() {
   @Override
-  public void onChange(Item item) {
+  public void onChange(Item item, int index) {
     //item changed
   }
 });

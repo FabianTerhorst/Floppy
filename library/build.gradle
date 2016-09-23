@@ -40,7 +40,7 @@ artifacts {
 def siteUrl = 'https://github.com/FabianTerhorst/Floppy'
 def gitUrl = 'https://github.com/FabianTerhorst/Floppy.git'
 
-version = "0.1.0"
+version = "0.3.0"
 group = "io.fabianterhorst"
 
 install {

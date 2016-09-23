@@ -20,19 +20,20 @@ public class ArrayDisk extends MemoryDisk {
         super(name, path, config);
     }
 
-    public void addOnEqualListener(String key, OnEqualListener listener) {
+    public synchronized void addOnEqualListener(String key, OnEqualListener listener) {
         equalListeners.put(key, listener);
     }
 
-    public void addOnChangeListener(String key, OnChangeListener listener) {
+    public synchronized void addOnChangeListener(String key, OnChangeListener listener) {
         changeListeners.put(key, listener);
     }
 
     public <T> void changeItem(String key, T object) {
         ArrayList<T> items = read(key);
-        items.set(getItemIndex(key, object), object);
+        int index = getItemIndex(key, object);
+        items.set(index, object);
         write(key, items);
-        callCallbacks(key, object);
+        callCallbacks(key, object, index);
     }
 
     public <T> void changeItem(String key, OnFindListener findListener, OnReadListener<T> readListener) {
@@ -40,9 +41,10 @@ public class ArrayDisk extends MemoryDisk {
         ItemResult<T> itemResult = getItem(key, findListener);
         if (itemResult != null) {
             T newItem = readListener.onRead(itemResult.getItem());
-            items.set(itemResult.getIndex(), newItem);
+            int index = itemResult.getIndex();
+            items.set(index, newItem);
             write(key, items);
-            callCallbacks(key, newItem);
+            callCallbacks(key, newItem, index);
         }
     }
 
@@ -76,7 +78,7 @@ public class ArrayDisk extends MemoryDisk {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> int getItemIndex(String key, T object) {
+    private synchronized <T> int getItemIndex(String key, T object) {
         ArrayList<T> items = read(key);
         OnEqualListener<T> listener = (OnEqualListener<T>) equalListeners.get(key);
         T item;
@@ -90,12 +92,19 @@ public class ArrayDisk extends MemoryDisk {
     }
 
     @SuppressWarnings("unchecked")
-    private synchronized <T> void callCallbacks(String key, T object) {
+    private synchronized <T> void callCallbacks(String key, T object, int index) {
         if (changeListeners.size() > 0) {
             OnChangeListener<T> listener = (OnChangeListener<T>) changeListeners.get(key);
             if (listener != null) {
-                listener.onChange(object);
+                listener.onChange(object, index);
             }
         }
+    }
+
+    @Override
+    public synchronized void removeListener(String key) {
+        super.removeListener(key);
+        changeListeners.remove(key);
+        equalListeners.remove(key);
     }
 }

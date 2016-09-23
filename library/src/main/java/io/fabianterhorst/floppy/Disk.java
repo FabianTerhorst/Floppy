@@ -122,11 +122,11 @@ public class Disk {
         }
     }
 
-    public void addOnWriteListener(String key, OnWriteListener onWriteListener) {
+    public synchronized void addOnWriteListener(String key, OnWriteListener onWriteListener) {
         mCallbacks.put(key, onWriteListener);
     }
 
-    public void removeListener(String key) {
+    public synchronized void removeListener(String key) {
         mCallbacks.remove(key);
     }
 

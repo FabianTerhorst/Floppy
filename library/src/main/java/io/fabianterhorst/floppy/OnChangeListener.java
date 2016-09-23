@@ -5,5 +5,5 @@ package io.fabianterhorst.floppy;
  */
 
 public interface OnChangeListener<T> {
-    void onChange(T object);
+    void onChange(T object, int index);
 }
