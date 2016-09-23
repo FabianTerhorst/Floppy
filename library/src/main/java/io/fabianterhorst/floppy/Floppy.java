@@ -16,7 +16,7 @@ public class Floppy {
 
     private static final ConcurrentHashMap<String, Disk> mDiskMap = new ConcurrentHashMap<>();
 
-    private static FSTConfiguration mConfig = FSTConfiguration.createDefaultConfiguration();
+    private static final FSTConfiguration mConfig = FSTConfiguration.createDefaultConfiguration();
 
     public Floppy() {
 
