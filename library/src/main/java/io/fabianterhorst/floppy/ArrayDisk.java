@@ -55,7 +55,7 @@ public class ArrayDisk extends MemoryDisk {
     }
 
     public <T> void removeItem(String key, T object) {
-       removeItem(key, getItemIndex(key, object));
+        removeItem(key, getItemIndex(key, object));
     }
 
     public <T> void removeItem(String key, int index) {
@@ -67,6 +67,9 @@ public class ArrayDisk extends MemoryDisk {
     @SuppressWarnings("unchecked")
     private <T> ItemResult<T> getItem(String key, OnFindListener listener) {
         ArrayList<T> items = read(key);
+        if (items == null) {
+            return null;
+        }
         T item;
         for (int i = 0, size = items.size(); i < size; i++) {
             item = items.get(i);
@@ -80,6 +83,9 @@ public class ArrayDisk extends MemoryDisk {
     @SuppressWarnings("unchecked")
     private synchronized <T> int getItemIndex(String key, T object) {
         ArrayList<T> items = read(key);
+        if (items == null) {
+            return -1;
+        }
         OnEqualListener<T> listener = (OnEqualListener<T>) equalListeners.get(key);
         T item;
         for (int i = 0, size = items.size(); i < size; i++) {
