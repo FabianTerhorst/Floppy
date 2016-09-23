@@ -69,7 +69,7 @@ public class Disk {
             BufferedSink bufferedSink = Okio.buffer(Okio.sink(originalFile));
             bufferedSink.write(mConfig.asByteArray(object));
             bufferedSink.flush();
-            bufferedSink.close(); //also close file stream
+            bufferedSink.close(); //also close file stream ?sync maybe?
             // Writing was successful, delete the backup file if there is one.
             if (backupFile != null) {
                 //noinspection ResultOfMethodCallIgnored
@@ -82,24 +82,15 @@ public class Disk {
     }
 
     public <T> T read(String key) {
-        return read(key, true);
+        return read(key, null);
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T read(String key, boolean fast) {
+    public <T> T read(String key, T defaultObject) {
         final File originalFile = getOriginalFile(key);
-        if (!fast) {
-            final File backupFile = makeBackupFile(originalFile);
-            if (backupFile.exists()) {
-                //noinspection ResultOfMethodCallIgnored
-                originalFile.delete();
-                //noinspection ResultOfMethodCallIgnored
-                backupFile.renameTo(originalFile);
-            }
-        }
 
         if (!originalFile.exists()) {
-            return null;
+            return defaultObject;
         }
 
         try {
@@ -108,16 +99,10 @@ public class Disk {
             stream.close();
             return (T) input.readObject();*/
             BufferedSource bufferedSource = Okio.buffer(Okio.source(originalFile));
-            byte[] bytes = bufferedSource.readByteArray();
+            T object = (T) mConfig.asObject(bufferedSource.readByteArray());
             bufferedSource.close();
-            return (T) mConfig.asObject(bytes);
+            return object;
         } catch (IOException e) {
-            if (!fast) {
-                if (originalFile.exists() && !originalFile.delete()) {
-                    throw new RuntimeException("Couldn't clean up broken/unserializable file "
-                            + originalFile, e);
-                }
-            }
             throw new RuntimeException(e);
         }
     }
