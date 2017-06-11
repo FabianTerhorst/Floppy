@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d("value", disk.<String>read("bla"));
         Log.d("time read", String.valueOf(System.currentTimeMillis() - ts));
 
-        disk.setOnWriteListener("bla", new OnWriteListener<String>() {
+        disk.addOnWriteListener("bla", new OnWriteListener<String>() {
             @Override
             public void onWrite(String value) {
                 Log.d("valueChange", value);

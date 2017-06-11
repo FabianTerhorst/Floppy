@@ -33,14 +33,9 @@ class MemoryDisk extends Disk {
     }
 
     @Override
-    public void write(String key, Object object, boolean fast) {
-        super.write(key, object, fast);
-        mCache.put(key, object);
-    }
-
-    @Override
     public void write(String key, Object object) {
-        write(key, object, true);
+        super.write(key, object);
+        mCache.put(key, object);
     }
 
     @Override

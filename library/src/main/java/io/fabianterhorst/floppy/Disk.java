@@ -15,6 +15,7 @@ import okio.Okio;
  * Created by fabianterhorst on 18.09.16.
  */
 
+//Todo: transform exceptions to own exceptions and forward to app
 public class Disk {
 
     private final FSTConfiguration mConfig;
@@ -37,47 +38,15 @@ public class Disk {
     }
 
     public void write(String key, Object object) {
-        write(key, object, true);
-    }
-
-    public void write(String key, Object object, boolean fast) {
         final File originalFile = getOriginalFile(key);
-        File backupFile = null;
-        if (!fast) {
-            backupFile = makeBackupFile(originalFile);
-            // Rename the current file so it may be used as a backup during the next read
-            if (originalFile.exists()) {
-                //Rename original to backup
-                if (!backupFile.exists()) {
-                    if (!originalFile.renameTo(backupFile)) {
-                        throw new RuntimeException("Couldn't rename file " + originalFile
-                                + " to backup file " + backupFile);
-                    }
-                } else {
-                    //Backup exist -> original file is broken and must be deleted
-                    //noinspection ResultOfMethodCallIgnored
-                    originalFile.delete();
-                }
-            }
-        }
         try {
-            /*FileOutputStream stream = new FileOutputStream(originalFile);
-            FSTObjectOutput output = mConfig.getObjectOutput(stream);
-            output.writeObject(object);
-            output.flush();
-            stream.close();*/
             BufferedSink bufferedSink = Okio.buffer(Okio.sink(originalFile));
             bufferedSink.write(mConfig.asByteArray(object));
             bufferedSink.flush();
             bufferedSink.close(); //also close file stream ?sync maybe?
-            // Writing was successful, delete the backup file if there is one.
-            if (backupFile != null) {
-                //noinspection ResultOfMethodCallIgnored
-                backupFile.delete();
-            }
             callCallbacks(key, object);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (IOException io) {
+            io.printStackTrace();//Todo: give back
         }
     }
 
@@ -94,16 +63,17 @@ public class Disk {
         }
 
         try {
-            /*FileInputStream stream = new FileInputStream(originalFile);
-            FSTObjectInput input = mConfig.getObjectInput(stream);
-            stream.close();
-            return (T) input.readObject();*/
             BufferedSource bufferedSource = Okio.buffer(Okio.source(originalFile));
-            T object = (T) mConfig.asObject(bufferedSource.readByteArray());
+            byte[] bytes = bufferedSource.readByteArray();
+            if (bytes.length == 0) {
+                return defaultObject;
+            }
+            T object = (T) mConfig.asObject(bytes);
             bufferedSource.close();
             return object;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (IOException io) {
+            io.printStackTrace();
+            return defaultObject;
         }
     }
 
@@ -139,7 +109,7 @@ public class Disk {
     }
 
     public void deleteAll() {
-        final String dbPath = getDbPath(mPath, mName);
+        final String dbPath = getDbPath();
         if (!deleteDirectory(dbPath)) {
             System.out.print("Couldn't delete Floppy dir " + dbPath);
         }
@@ -148,19 +118,18 @@ public class Disk {
     private File getOriginalFile(String key) {
         File file = mFiles.get(key);
         if (file == null) {
-            final String tablePath = mFilesDir + File.separator + key + ".pt";
-            file = new File(tablePath);
+            file = new File(mFilesDir + File.separator + key + ".pt");
             mFiles.put(key, file);
         }
         return file;
     }
 
-    private String getDbPath(String path, String dbName) {
-        return path + File.separator + dbName;
+    private String getDbPath() {
+        return mPath + File.separator + mName;
     }
 
     private String createDiskDir() {
-        String filesDir = getDbPath(mPath, mName);
+        String filesDir = getDbPath();
         if (!new File(filesDir).exists()) {
             boolean isReady = new File(filesDir).mkdirs();
             if (!isReady) {
@@ -186,9 +155,5 @@ public class Disk {
             }
         }
         return directory.delete();
-    }
-
-    private File makeBackupFile(File originalFile) {
-        return new File(originalFile.getPath() + ".bak");
     }
 }
