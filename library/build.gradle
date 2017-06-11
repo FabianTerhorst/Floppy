@@ -5,8 +5,10 @@ apply plugin: 'com.jfrog.bintray'
 archivesBaseName = 'Floppy'
 
 dependencies {
-    compile 'com.squareup.okio:okio:1.10.0'
-    compile 'com.github.fabianterhorst:fast-serialization:2.48.5'
+    implementation 'com.squareup.okio:okio:1.13.0'
+    implementation 'com.github.fabianterhorst:fast-serialization:2.48.5'
+
+    testImplementation 'junit:junit:4.12'
 }
 
 sourceCompatibility = "1.7"
