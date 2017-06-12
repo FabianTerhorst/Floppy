@@ -1,7 +1,7 @@
 # Floppy
 Fast key value storage for Java with much support for Android
 
-<a href="http://www.methodscount.com/?lib=io.fabianterhorst%3AFloppy%3A0.0.8"><img src="https://img.shields.io/badge/Methods and size-core: 80 | deps: 2229 | 7 KB-e91e63.svg"/></a>
+<a href="http://www.methodscount.com/?lib=io.fabianterhorst%3AFloppy%3A0.2.5"><img src="https://img.shields.io/badge/Methods and size-core: 96 | deps: 1699 | 11 KB-e91e63.svg"/></a>
 
 
 ```java
