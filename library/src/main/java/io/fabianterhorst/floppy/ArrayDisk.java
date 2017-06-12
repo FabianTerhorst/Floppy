@@ -3,7 +3,7 @@ package io.fabianterhorst.floppy;
 import org.nustaq.serialization.FSTConfiguration;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -12,9 +12,9 @@ import java.util.Map;
 //Todo : add chang listener for add and remove as well with add remove method
 public class ArrayDisk extends MemoryDisk {
 
-    private final Map<String, OnEqualListener> equalListeners = new HashMap<>();
+    private final Map<String, OnEqualListener> equalListeners = new LinkedHashMap<>();
 
-    private final Map<String, OnChangeListener> changeListeners = new HashMap<>();
+    private final Map<String, OnChangeListener> changeListeners = new LinkedHashMap<>();
 
     ArrayDisk(String name, String path, FSTConfiguration config) {
         super(name, path, config);
@@ -33,18 +33,18 @@ public class ArrayDisk extends MemoryDisk {
         int index = getItemIndex(key, object);
         items.set(index, object);
         write(key, items);
-        callCallbacks(key, object, index);
+        callChangeCallbacks(key, object, index);
     }
 
     public <T> void changeItem(String key, OnFindListener findListener, OnReadListener<T> readListener) {
         ArrayList<T> items = read(key);
         ItemResult<T> itemResult = getItem(key, findListener);
         if (itemResult != null) {
-            T newItem = readListener.onRead(itemResult.getItem());
-            int index = itemResult.getIndex();
+            T newItem = readListener.onRead(itemResult.item);
+            int index = itemResult.index;
             items.set(index, newItem);
             write(key, items);
-            callCallbacks(key, newItem, index);
+            callChangeCallbacks(key, newItem, index);
         }
     }
 
@@ -98,7 +98,7 @@ public class ArrayDisk extends MemoryDisk {
     }
 
     @SuppressWarnings("unchecked")
-    private synchronized <T> void callCallbacks(String key, T object, int index) {
+    private synchronized <T> void callChangeCallbacks(String key, T object, int index) {
         if (changeListeners.size() > 0) {
             OnChangeListener<T> listener = (OnChangeListener<T>) changeListeners.get(key);
             if (listener != null) {
