@@ -6,7 +6,7 @@ archivesBaseName = 'Floppy'
 
 dependencies {
     implementation 'com.squareup.okio:okio:1.13.0'
-    implementation 'com.github.fabianterhorst:fast-serialization:2.48.5'
+    implementation 'com.github.fabianterhorst:fast-serialization:3.0.0'
 
     testImplementation 'junit:junit:4.12'
 }
@@ -42,7 +42,7 @@ artifacts {
 def siteUrl = 'https://github.com/FabianTerhorst/Floppy'
 def gitUrl = 'https://github.com/FabianTerhorst/Floppy.git'
 
-version = "0.3.0"
+version = "0.2.4"
 group = "io.fabianterhorst"
 
 install {
