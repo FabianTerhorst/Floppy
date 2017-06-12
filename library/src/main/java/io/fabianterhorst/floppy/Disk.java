@@ -4,7 +4,7 @@ import org.nustaq.serialization.FSTConfiguration;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import okio.BufferedSink;
@@ -20,21 +20,20 @@ public class Disk {
 
     private final FSTConfiguration mConfig;
 
-    private final Map<String, OnWriteListener> mCallbacks = new HashMap<>();
+    private final Map<String, OnWriteListener> mCallbacks = new LinkedHashMap<>();
 
-    private final Map<String, File> mFiles = new HashMap<>();
+    private final Map<String, File> mFiles = new LinkedHashMap<>();
 
-    private final String mName;
-
-    private final String mPath;
-
-    private final String mFilesDir;
+    private final File mFile;
 
     Disk(String name, String path, FSTConfiguration config) {
-        this.mName = name;
-        this.mPath = path;
         this.mConfig = config;
-        this.mFilesDir = createDiskDir();
+        this.mFile = new File(path, name);
+        if (!mFile.exists()) {
+            if (!mFile.mkdirs()) {
+                System.out.print("Couldn't create Floppy dir: " + mFile);
+            }
+        }
     }
 
     public void write(String key, Object object) {
@@ -57,20 +56,17 @@ public class Disk {
     @SuppressWarnings("unchecked")
     public <T> T read(String key, T defaultObject) {
         final File originalFile = getOriginalFile(key);
-
         if (!originalFile.exists()) {
             return defaultObject;
         }
-
         try {
             BufferedSource bufferedSource = Okio.buffer(Okio.source(originalFile));
             byte[] bytes = bufferedSource.readByteArray();
+            bufferedSource.close();
             if (bytes.length == 0) {
                 return defaultObject;
             }
-            T object = (T) mConfig.asObject(bytes);
-            bufferedSource.close();
-            return object;
+            return (T) mConfig.asObject(bytes);
         } catch (IOException io) {
             io.printStackTrace();
             return defaultObject;
@@ -102,51 +98,35 @@ public class Disk {
         }
 
         boolean deleted = originalFile.delete();
+        mFiles.remove(key);
         if (!deleted) {
-            throw new RuntimeException("Couldn't delete file " + originalFile
+            System.out.print("Couldn't delete file " + originalFile
                     + " for table " + key);
         }
     }
 
     public void deleteAll() {
-        final String dbPath = getDbPath();
-        if (!deleteDirectory(dbPath)) {
-            System.out.print("Couldn't delete Floppy dir " + dbPath);
+        if (!deleteDirectory(mFile)) {
+            System.out.print("Couldn't delete Floppy dir " + mFile.toString());
         }
     }
 
     private File getOriginalFile(String key) {
         File file = mFiles.get(key);
         if (file == null) {
-            file = new File(mFilesDir + File.separator + key + ".pt");
+            file = new File(mFile, key + ".pt");
             mFiles.put(key, file);
         }
         return file;
     }
 
-    private String getDbPath() {
-        return mPath + File.separator + mName;
-    }
-
-    private String createDiskDir() {
-        String filesDir = getDbPath();
-        if (!new File(filesDir).exists()) {
-            boolean isReady = new File(filesDir).mkdirs();
-            if (!isReady) {
-                throw new RuntimeException("Couldn't create Floppy dir: " + filesDir);
-            }
-        }
-        return filesDir;
-    }
-
-    private static boolean deleteDirectory(String dirPath) {
-        File directory = new File(dirPath);
+    private static boolean deleteDirectory(File directory) {
         if (directory.exists()) {
             File[] files = directory.listFiles();
             if (null != files) {
                 for (File file : files) {
                     if (file.isDirectory()) {
-                        deleteDirectory(file.toString());
+                        deleteDirectory(file);
                     } else {
                         //noinspection ResultOfMethodCallIgnored
                         file.delete();
