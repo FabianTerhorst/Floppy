@@ -1,7 +1,7 @@
 # Floppy
 Fast key value storage for Java with much support for Android
 
-<a href="http://www.methodscount.com/?lib=io.fabianterhorst%3AFloppy%3A0.2.5"><img src="https://img.shields.io/badge/Methods and size-core: 96 | deps: 1699 | 11 KB-e91e63.svg"/></a>
+<a href="http://www.methodscount.com/?lib=io.fabianterhorst%3AFloppy%3A0.2.6"><img src="https://img.shields.io/badge/Methods and size-core: 96 | deps: 1693 | 11 KB-e91e63.svg"/></a>
 
 
 ```java
@@ -26,7 +26,7 @@ disk.setOnWriteListener("testKey", new OnWriteListener<String>() {
 });
 disk.write("testKey", "test");
 ```
-##Array support
+## Array support
 The array support is internally a memory disk
 ```java
 //Without custom name
