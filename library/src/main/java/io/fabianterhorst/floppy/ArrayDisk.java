@@ -113,4 +113,11 @@ public class ArrayDisk extends MemoryDisk {
         changeListeners.remove(key);
         equalListeners.remove(key);
     }
+
+    @Override
+    public synchronized void removeAllListener() {
+        super.removeAllListener();
+        changeListeners.clear();
+        equalListeners.clear();
+    }
 }

@@ -1,7 +1,12 @@
 package io.fabianterhorst.floppy.sample;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import okio.BufferedSink;
+import okio.BufferedSource;
 
 /**
  * Created by fabianterhorst on 12.06.17.
@@ -60,5 +65,34 @@ public class Person {
         result = 31 * result + (mPhoneNumbers != null ? mPhoneNumbers.hashCode() : 0);
         result = 31 * result + (mBikes != null ? Arrays.hashCode(mBikes) : 0);
         return result;
+    }
+
+    public void readObject(BufferedSource source) throws IOException {
+        mName = source.readUtf8(source.readInt());
+        mAge = source.readInt();
+        mPhoneNumbers = new ArrayList<>();
+        for (int i = 0, length = source.readInt(); i < length; i++) {
+            mPhoneNumbers.add(source.readUtf8(source.readInt()));
+        }
+        mBikes = new String[source.readInt()];
+        for (int i = 0; i < mBikes.length; i++) {
+            mBikes[i] = source.readUtf8(source.readInt());
+        }
+    }
+
+    public void writeObject(BufferedSink sink) throws IOException {
+        sink.writeInt(mName.length());
+        sink.writeUtf8(mName);
+        sink.writeInt(mAge);
+        sink.writeInt(mPhoneNumbers.size());
+        for (String string : mPhoneNumbers) {
+            sink.writeInt(string.length());
+            sink.writeUtf8(string);
+        }
+        sink.writeInt(mBikes.length);
+        for (String string : mBikes) {
+            sink.writeInt(string.length());
+            sink.writeUtf8(string);
+        }
     }
 }

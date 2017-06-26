@@ -27,4 +27,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:0.5'
     androidTestImplementation 'com.android.support.test:rules:0.5'
     androidTestImplementation 'dk.ilios:spanner:0.6.0'
+    androidTestImplementation 'com.squareup.okio:okio:1.13.0'
+    androidTestImplementation 'com.github.fabianterhorst:fast-serialization:3.1.1'
 }

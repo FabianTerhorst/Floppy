@@ -41,7 +41,7 @@ public class Disk {
         try {
             BufferedSink bufferedSink = Okio.buffer(Okio.sink(originalFile));
             bufferedSink.write(mConfig.asByteArray(object));
-            bufferedSink.flush();
+            //bufferedSink.flush();
             bufferedSink.close(); //also close file stream ?sync maybe?
             callCallbacks(key, object);
         } catch (IOException io) {
@@ -81,6 +81,10 @@ public class Disk {
         mCallbacks.remove(key);
     }
 
+    public synchronized void removeAllListener() {
+        mCallbacks.clear();
+    }
+
     @SuppressWarnings("unchecked")
     private synchronized <T> void callCallbacks(String key, T object) {
         if (mCallbacks.size() > 0) {
@@ -98,16 +102,23 @@ public class Disk {
         }
 
         boolean deleted = originalFile.delete();
-        mFiles.remove(key);
         if (!deleted) {
             System.out.print("Couldn't delete file " + originalFile
                     + " for table " + key);
+        } else {
+            mFiles.remove(key);
+            callCallbacks(key, null);
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void deleteAll() {
         if (!deleteDirectory(mFile)) {
             System.out.print("Couldn't delete Floppy dir " + mFile.toString());
+        } else {
+            for (Map.Entry<String, OnWriteListener> listener : mCallbacks.entrySet()) {
+                listener.getValue().onWrite(null);
+            }
         }
     }
 

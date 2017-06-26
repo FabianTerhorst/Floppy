@@ -68,7 +68,7 @@ disk.changeItem("items", new OnFindListener<Item>() {
 
 gradle
 ```groovy
-compile 'io.fabianterhorst:Floppy:0.2.0'
+compile 'io.fabianterhorst:Floppy:0.2.6'
 ```
 
 maven

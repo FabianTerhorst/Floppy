@@ -5,6 +5,7 @@ import android.support.test.InstrumentationRegistry;
 import org.junit.runner.RunWith;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import dk.ilios.spanner.BeforeExperiment;
@@ -15,6 +16,7 @@ import dk.ilios.spanner.config.RuntimeInstrumentConfig;
 import dk.ilios.spanner.junit.SpannerRunner;
 import io.fabianterhorst.floppy.Disk;
 import io.fabianterhorst.floppy.Floppy;
+import okio.Buffer;
 
 /**
  * Created by fabianterhorst on 12.06.17.
@@ -39,8 +41,12 @@ public class FloppyBenchmark {
 
     private final List<Person> contacts = TestDataGenerator.genPersonList(500);
 
+    private Buffer buffer;
+
+    //private FSTConfiguration config;
+
     @BeforeExperiment
-    public void before() {
+    public void before() throws IOException {
         Floppy.init(filesDir.toString(), Person.class);
         disk = Floppy.disk();
         disk.deleteAll();
@@ -48,6 +54,18 @@ public class FloppyBenchmark {
         defaultFolder.mkdir();
         new File(defaultFolder, "users.pt");
         disk.write("contacts", contacts);
+
+        buffer = new Buffer();
+        buffer.writeInt(contacts.size());
+        for (Person contact : contacts) {
+            contact.writeObject(buffer);
+        }
+
+        /*config = FSTConfiguration.getDefaultConfiguration();
+        config.setStructMode(true);
+        config.getCLInfoRegistry().setIgnoreAnnotations(true);
+        config.registerClass(Person.class);*/
+
     }
 
     @Benchmark
@@ -58,5 +76,27 @@ public class FloppyBenchmark {
     @Benchmark
     public void read500Contacts() {
         disk.read("contacts");
+    }
+
+    @Benchmark
+    public void write500ContactsBinary() throws IOException {
+        //Buffer buffer = new Buffer();
+        buffer.writeInt(contacts.size());
+        for (Person contact : contacts) {
+            contact.writeObject(buffer);
+        }
+    }
+
+    /*@Benchmark
+    public void write500ContactsFST() throws IOException {
+        config.asByteArray(contacts);
+    }*/
+
+    public void read500ContactsBinary() throws IOException {
+        Person person;
+        for (int i = 0, length = buffer.readInt();i < length;i++) {
+            person = new Person();
+            person.readObject(buffer);
+        }
     }
 }

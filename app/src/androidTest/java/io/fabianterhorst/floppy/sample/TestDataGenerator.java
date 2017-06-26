@@ -31,6 +31,7 @@ public class TestDataGenerator {
 
     @NonNull
     public static <T extends Person> T genPerson(T p, int i) {
+        p.setName("Max");
         p.setAge(i);
         p.setBikes(new String[2]);
         p.getBikes()[0] = "Kellys gen#" + i;
