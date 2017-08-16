@@ -5,19 +5,11 @@ package io.fabianterhorst.floppy;
  */
 
 class ItemResult<T> {
-    private T item;
-    private int index;
+    T item;
+    int index;
 
     ItemResult(T item, int index) {
         this.item = item;
         this.index = index;
-    }
-
-    public T getItem() {
-        return item;
-    }
-
-    public int getIndex() {
-        return index;
     }
 }

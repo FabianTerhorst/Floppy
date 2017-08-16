@@ -2,7 +2,8 @@ package io.fabianterhorst.floppy;
 
 import org.nustaq.serialization.FSTConfiguration;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Created by fabianterhorst on 19.09.16.
@@ -10,7 +11,7 @@ import java.util.HashMap;
 
 class MemoryDisk extends Disk {
 
-    private final HashMap<String, Object> mCache = new HashMap<>();
+    private final Map<String, Object> mCache = new LinkedHashMap<>();
 
     MemoryDisk(String name, String path, FSTConfiguration config) {
         super(name, path, config);

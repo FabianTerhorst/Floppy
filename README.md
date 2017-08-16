@@ -1,7 +1,7 @@
 # Floppy
 Fast key value storage for Java with much support for Android
 
-<a href="http://www.methodscount.com/?lib=io.fabianterhorst%3AFloppy%3A0.2.3"><img src="https://img.shields.io/badge/Methods and size-core: 107 | deps: 1760 | 11 KB-e91e63.svg"/></a>
+<a href="http://www.methodscount.com/?lib=io.fabianterhorst%3AFloppy%3A0.2.6"><img src="https://img.shields.io/badge/Methods and size-core: 96 | deps: 1693 | 11 KB-e91e63.svg"/></a>
 
 
 ```java
@@ -68,7 +68,7 @@ disk.changeItem("items", new OnFindListener<Item>() {
 
 gradle
 ```groovy
-compile 'io.fabianterhorst:Floppy:0.2.0'
+compile 'io.fabianterhorst:Floppy:0.2.6'
 ```
 
 maven

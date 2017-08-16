@@ -1,0 +1,13 @@
+apply plugin: 'java-library'
+
+archivesBaseName = 'Floppy-RX'
+
+dependencies {
+    api project(':library')
+    implementation "io.reactivex.rxjava2:rxjava:2.1.1"
+    implementation 'com.github.fabianterhorst:fast-serialization:3.1.1'
+    testImplementation 'junit:junit:4.12'
+}
+
+sourceCompatibility = "1.7"
+targetCompatibility = "1.7"
